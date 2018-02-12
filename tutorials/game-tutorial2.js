@@ -15,7 +15,7 @@ var screenSetting = {
   column: 55,
   row: 22,
   fontFamily: 'Nanum Gothic Coding',
-  fontSource: 'https://fonts.googleapis.com/earlyaccess/nanumgothiccoding.css',
+  fontSource: 'https://cdn.rawgit.com/a-mean-blogger/TM-dev/4df1d8681e75ad32730690838ac86c612af16a19/font/nanumgothiccoding.css',
 };
 
 var debugSetting = {
