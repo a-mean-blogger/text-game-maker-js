@@ -8,4 +8,4 @@ Documentations & Tutorials:
 
 license: MIT
 
-Copyright 2017 a.mean.blogger@gmail.com
+Copyright 2018 a.mean.blogger@gmail.com
