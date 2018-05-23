@@ -1,5 +1,5 @@
 var TM = {};
-
+TM.version = '1.0.1';
 TM.defaultSettings = {
   screen: {
     canvasId: 'tm-canvas',
@@ -8,6 +8,7 @@ TM.defaultSettings = {
     row: 20,
     backgroundColor: '#151617',
     webFontJsPath: 'https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js',
+    fontFaceObserverJsPath:'https://cdnjs.cloudflare.com/ajax/libs/fontfaceobserver/2.0.13/fontfaceobserver.js',
     fontColor: '#F5F7FA',
     fontFamily: 'monospace',
     fontSource: null,

@@ -42,7 +42,7 @@ TM.ScreenManager = function(customSreenSetting, customCharGroups){
     refScreenManager: this,
     xMax: this.screenSetting.column-1,
     yMax: this.screenSetting.row-1,
-    color: "gray",
+    color: 'gray',
     width: this.blockWidth,
     size: 0.1,
   });
@@ -57,18 +57,15 @@ TM.ScreenManager.prototype.constructor = TM.ScreenManager;
 // TM.ILoopObject functions implementation
 TM.ScreenManager.prototype._init = function(){
   this.resetScreenData();
-  if(this.screenSetting.fontSource && !TM.common.checkFontLoadedByWebFont(this.screenSetting.fontFamily)){
+  if(this.screenSetting.fontSource){
     this.startLoadingFont();
+  }
+  else {
+    this.isFontLoaded = true;
   }
 };
 TM.ScreenManager.prototype._inactivate = function(){};
 TM.ScreenManager.prototype._calculate = function(){
-  if(!this.isFontLoaded && TM.common.checkFontLoadedByWebFont(this.screenSetting.fontFamily)){
-    this.isFontLoaded = true;
-    this.drawLoading(true);
-    this.cursor.move(0,0);
-    this.refreshScreen();
-  }
   if(this.checkReady()){
     if(this.onReadyFunc){
       this.onReadyFunc();
@@ -76,7 +73,7 @@ TM.ScreenManager.prototype._calculate = function(){
     }
   }
   else {
-    this.drawLoading();
+    this.drawSystemMessage('Loading...');
   }
 };
 TM.ScreenManager.prototype._draw = function(){
@@ -112,7 +109,7 @@ TM.ScreenManager.prototype._draw = function(){
             chY = chY+this.blockHeight*charset.yAdj;
           }
           else {
-            ctx.font = this.screenSetting.fontSize+'px '+this.screenData[i][j].font;
+            ctx.font = this.screenSetting.fontSize+'px '+(this.isFontLoaded?this.screenData[i][j].font:'monospace');
           }
           ctx.fillStyle = this.screenData[i][j].color;
           ctx.fillText(this.screenData[i][j].char[0],chX,chY);
@@ -157,31 +154,53 @@ TM.ScreenManager.prototype._draw = function(){
 };
 
 // TM.ScreenManager private functions
-TM.ScreenManager.prototype.startLoadingFont = function(){
-  if(!this.screenSetting.webFontJsPath) return console.error("TM.ScreenManager ERROR: 'webFontJsPath' is required to load font from 'fontSource'!");
+TM.ScreenManager.prototype.startLoadingFont = function(self){
+  var _self = self?self:this;
+  if(!_self.screenSetting.webFontJsPath) return console.error("TM.ScreenManager ERROR: 'webFontJsPath' is required to load font from 'fontSource'!");
+  if(!_self.screenSetting.fontFaceObserverJsPath) return console.error("TM.ScreenManager ERROR: 'fontFaceObserverJsPath' is required to load font from 'fontSource'!");
 
+  var isReadyToLoad = true;
   if(!window.WebFont){
-    TM.common.includeScript(this.screenSetting.webFontJsPath,this.loadWebFont());
+    isReadyToLoad = false;
+    TM.common.includeScript(_self.screenSetting.webFontJsPath);
+  }
+
+  if(!window.FontFaceObserver){
+    isReadyToLoad = false;
+    TM.common.includeScript(_self.screenSetting.fontFaceObserverJsPath);
+  }
+
+  if(isReadyToLoad){
+    _self.loadWebFont();
   }
   else {
-    this.loadWebFont();
+    setTimeout(function(){
+      TM.ScreenManager.prototype.startLoadingFont(_self);
+    },100)
   }
 };
 TM.ScreenManager.prototype.loadWebFont = function(){
-  var _self = this;
-  return function(){
-    var link = document.createElement("link");
-    link.rel ="stylesheet";
-    link.href=_self.screenSetting.fontSource;
-    document.head.appendChild(link);
+  WebFont.load({
+    custom: {
+      families: [this.screenSetting.fontFamily],
+      urls : [this.screenSetting.fontSource]
+    }
+  });
 
-    WebFont.load({
-      custom: {
-        families: [_self.screenSetting.fontFamily],
-        urls : [_self.screenSetting.fontSource]
-      }
+  var font = new FontFaceObserver(this.screenSetting.fontFamily);
+  var _self = this;
+  font.load()
+    .then(function(){
+      _self.isFontLoaded = true;
+      _self.refreshScreen();
+      _self.drawSystemMessage('Loading...', true);
+    },function(){
+      _self.isFontLoaded = true;
+      var message = 'TM.ScreenManager ERROR: Cannot load font: '+_self.screenSetting.fontFamily;
+      _self.drawSystemMessage(message);
+      console.error(message);
     });
-  };
+
 };
 TM.ScreenManager.prototype.resetScreenData = function(){
   this.screenData = [];
@@ -263,10 +282,12 @@ TM.ScreenManager.prototype.insertChar = function(char,color,backgroundColor){
 
   }
 };
-TM.ScreenManager.prototype.drawLoading = function(remove){
-  var text = "Loading...";
-  if(remove) this.deleteTextAt(0,0,text);
-  else this.insertTextAt(0,0,text);
+TM.ScreenManager.prototype.drawSystemMessage = function(message, remove){
+  var cursorX = this.cursor.data.x;
+  var cursorY = this.cursor.data.y;
+  if(remove) this.deleteTextAt(0,0,message);
+  else this.insertTextAt(0,0,message);
+  this.cursor.move(cursorX, cursorY);
 };
 
 // TM.ScreenManager public functions
@@ -322,7 +343,7 @@ TM.ScreenManager.prototype.insertText = function(text,color,backgroundColor){
 
   for(var i=0; i<text.length; i++){
     switch(text[i]){
-      case "\n":
+      case '\n':
         if(cursorData.y+1<this.screenSetting.row){
           this.cursor.move(sX,cursorData.y+1);
         }
@@ -331,7 +352,7 @@ TM.ScreenManager.prototype.insertText = function(text,color,backgroundColor){
           this.scrollDown();
         }
         break;
-      case "\r":
+      case '\r':
         this.cursor.move(0,cursorData.y);
         break;
       default:

@@ -47,21 +47,15 @@ TM.common.getFullwidthRegex = function(charGroups){
   }
   if(string) return new RegExp('(['+string+'])','g');
 };
-TM.common.includeScript = function(ScriptPath, onload){
+TM.common.includeScript = function(ScriptPath){
   if(!ScriptPath) return;
 
   var script = document.querySelector('script[src="'+ScriptPath+'"]');
   if(!script){
     script = document.createElement('script');
     script.src = ScriptPath;
-    script.onload = onload;
     document.getElementsByTagName('head')[0].appendChild(script);
   }
-};
-TM.common.checkFontLoadedByWebFont = function(fontName){
-  var alteredFontName = fontName.replace(/ /g,'').toLowerCase();
-  var fontAppliedDom = document.querySelector('.wf-'+alteredFontName+'-n4-active');
-  return fontAppliedDom?true:false;
 };
 TM.common.mergeObjects = function(object1, object2){
   var mergedObject = {};

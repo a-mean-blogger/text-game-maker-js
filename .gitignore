@@ -1,3 +1,2 @@
 node_modules
-dist/text-game-maker-1.0.0.min.js.zip
-dist/text-game-maker-js-starter-program.zip
+dist/*.zip
