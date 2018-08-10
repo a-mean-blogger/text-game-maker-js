@@ -7,6 +7,7 @@ var screenSetting = {
   // row: 20,
   // backgroundColor: '#151617',
   // webFontJsPath: 'https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js',
+  // fontFaceObserverJsPath:'https://cdnjs.cloudflare.com/ajax/libs/fontfaceobserver/2.0.13/fontfaceobserver.js',
   // fontColor: '#F5F7FA',
   // fontFamily: 'monospace',
   // fontSource: null,
@@ -15,7 +16,7 @@ var screenSetting = {
   column: 55,
   row: 22,
   fontFamily: 'Nanum Gothic Coding',
-  fontSource: 'https://cdn.rawgit.com/a-mean-blogger/TM-dev/4df1d8681e75ad32730690838ac86c612af16a19/font/nanumgothiccoding.css',
+  fontSource: 'https://fonts.googleapis.com/css?family=Nanum+Gothic+Coding',
 };
 
 var debugSetting = {
