@@ -3,8 +3,8 @@ var gulp = require('gulp'),
     uglify = require('gulp-uglify'),
     header = require('gulp-header');
 
-var version = '1.0.1';
-var year = '2018';
+var version = '1.0.2';
+var year = '2019';
 
 gulp.task('default', function() {
   gulp.src([
