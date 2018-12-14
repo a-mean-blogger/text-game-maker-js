@@ -15,7 +15,7 @@ TM.InputManager_Keyboard = function(refInputManager){
         _self.keyState[e.keyCode] = true;
         _self.keyPressed[e.keyCode] = true;
       }
-      if(_self.refInputManager.devMode){
+      if(_self.refInputManager.devMode && _self.refInputManager.isActive && _self.isActive){
         console.log('Keyboard Key Pressed keyCode: ', e.keyCode);
       }
     },
@@ -34,7 +34,10 @@ TM.InputManager_Keyboard.prototype._init = function(){
   this.refInputManager.targetDom.addEventListener('keydown', this.eventHandlers.keydown);
   this.refInputManager.targetDom.addEventListener('keyup', this.eventHandlers.keyup);
 };
-TM.InputManager_Keyboard.prototype._inactivate = function(){};
+TM.InputManager_Keyboard.prototype._inactivate = function(){
+  this.keyState = {};
+  this.keyPressed = {};
+};
 
 // TM.InputManager_Keyboard functions - keyState
 TM.InputManager_Keyboard.prototype.checkKeyState = function(keyCode){

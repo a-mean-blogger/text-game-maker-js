@@ -28,13 +28,14 @@ TM.ScreenManager_Cursor.prototype._init = function(){
 TM.ScreenManager_Cursor.prototype._inactivate = function(){
   this.data.isHidden = true;
   this.data.isUpdated = true;
+
+  this.data.refScreenManager.requestDraw();
 };
 TM.ScreenManager_Cursor.prototype._calculate = function(){
   this.data.isHidden = !this.data.isHidden;
   this.data.isUpdated = true;
 
-  var screenMgr = this.data.refScreenManager;
-  screenMgr.requestDraw();
+  this.data.refScreenManager.requestDraw();
 };
 TM.ScreenManager_Cursor.prototype._draw = function(){};
 
@@ -49,6 +50,8 @@ TM.ScreenManager_Cursor.prototype.move = function(x,y){
     isMoved = true;
     this.data.x = x;
     this.data.y = y;
+
+    this.data.refScreenManager.requestDraw();
   }
   return isMoved;
 };
