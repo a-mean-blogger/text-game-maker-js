@@ -43,14 +43,7 @@ TM.ScreenManager = function(customSreenSetting, customCharGroups){
     isDrawProcessed: true,
   };
 
-  this.cursor = new TM.ScreenManager_Cursor({
-    refScreenManager: this,
-    xMax: this.screenSetting.column-1,
-    yMax: this.screenSetting.row-1,
-    color: 'gray',
-    width: this.blockWidth,
-    size: 0.1,
-  });
+  this.cursor = new TM.ScreenManager_Cursor(this);
 
   this.scrollOffsetY = 0;
   this.isFontLoaded = false;
@@ -102,17 +95,18 @@ TM.ScreenManager.prototype.requestDraw = function(){
   }
 }
 TM.ScreenManager.prototype.drawAnimationFrame = function(){
-  //console.log(Math.floor(Date.now()/1000));
   this.screen.isDrawProcessed = true;
 
   var ctx = this.ctx;
   ctx.textBaseline = 'buttom';
 
   //remove cursor
-  var cursorData = this.cursor.data;
-  if(cursorData.isUpdated && cursorData.isHidden){
-    cursorData.isUpdated = false;
-    this.screen.data[cursorData.y+this.scrollOffsetY][cursorData.x].isNew = true;
+  if(this.cursor.isUpdated && this.cursor.blinkFlag){
+    this.cursor.isUpdated = false;
+
+    var cursorX = this.cursor.fixedX!==undefined?this.cursor.fixedX:this.cursor.x;
+    var cursorY = this.cursor.fixedY!==undefined?this.cursor.fixedY:this.cursor.y;
+    this.screen.data[cursorY+this.scrollOffsetY][cursorX].isNew = true;
   }
 
   // bgUpdateMap indicates if bg updated or not at the grid in this draw iteration.
@@ -166,15 +160,18 @@ TM.ScreenManager.prototype.drawAnimationFrame = function(){
       }
 
       //draw cursor
-      if(cursorData.isUpdated)
-      if(j == cursorData.x && i-this.scrollOffsetY == cursorData.y){
-        var cursorWidth = cursorData.width;
-        var cursorHeight = this.blockHeight*cursorData.size;
-        var cursorX = this.blockWidth*cursorData.x;
-        var cursorY = (this.blockHeight)*(cursorData.y)+(this.blockHeight-cursorHeight);
-        var cursorColor = this.screenSetting.fontColor;
-        ctx.fillStyle = cursorColor;
-        ctx.fillRect(cursorX,cursorY,cursorWidth,cursorHeight);
+      if(this.cursor.isUpdated){
+        var cursorX = this.cursor.fixedX!==undefined?this.cursor.fixedX:this.cursor.x;
+        var cursorY = this.cursor.fixedY!==undefined?this.cursor.fixedY:this.cursor.y;
+        if(j == cursorX && i-this.scrollOffsetY == cursorY){
+          var cursorWidth = this.cursor.width;
+          var cursorHeight = this.blockHeight*this.cursor.size;
+          var cursorX = this.blockWidth*cursorX;
+          var cursorY = (this.blockHeight)*(cursorY)+(this.blockHeight-cursorHeight);
+          var cursorColor = this.cursor.color;
+          ctx.fillStyle = cursorColor;
+          ctx.fillRect(cursorX,cursorY,cursorWidth,cursorHeight);
+        }
       }
 
     }
@@ -274,10 +271,10 @@ TM.ScreenManager.prototype.isInScreen = function(x,y){
   return isInScreen;
 };
 TM.ScreenManager.prototype.insertChar = function(char,color,backgroundColor){
-  var screenX = this.cursor.data.x;
-  var screenY = this.cursor.data.y;
-  var dataX = this.cursor.data.x;
-  var dataY = this.cursor.data.y+this.scrollOffsetY;
+  var screenX = this.cursor.x;
+  var screenY = this.cursor.y;
+  var dataX = this.cursor.x;
+  var dataY = this.cursor.y+this.scrollOffsetY;
 
   if(this.isInScreen(screenX,screenY)){
 
@@ -313,8 +310,8 @@ TM.ScreenManager.prototype.insertChar = function(char,color,backgroundColor){
   }
 };
 TM.ScreenManager.prototype.drawSystemMessage = function(message, remove){
-  var cursorX = this.cursor.data.x;
-  var cursorY = this.cursor.data.y;
+  var cursorX = this.cursor.x;
+  var cursorY = this.cursor.y;
   if(remove) this.deleteTextAt(0,0,message);
   else this.insertTextAt(0,0,message);
   this.cursor.move(cursorX, cursorY);
@@ -371,22 +368,21 @@ TM.ScreenManager.prototype.insertText = function(text,color,backgroundColor){
   var regex = this.FullwidthRegex;
   if(regex) text = text.toString().replace(regex,'$1 ');
 
-  var sX = this.cursor.data.x; // store the starting x position
-  var cursorData = this.cursor.data;
+  var sX = this.cursor.x; // store the starting x position
 
   for(var i=0; i<text.length; i++){
     switch(text[i]){
       case '\n':
-        if(cursorData.y+1<this.screenSetting.row){
-          this.cursor.move(sX,cursorData.y+1);
+        if(this.cursor.y+1<this.screenSetting.row){
+          this.cursor.move(sX,this.cursor.y+1);
         }
         else{
-          this.cursor.move(sX,cursorData.y);
+          this.cursor.move(sX,this.cursor.y);
           this.scrollDown();
         }
         break;
       case '\r':
-        this.cursor.move(0,cursorData.y);
+        this.cursor.move(0,this.cursor.y);
         sX = 0;
         break;
       default:
@@ -399,10 +395,14 @@ TM.ScreenManager.prototype.insertText = function(text,color,backgroundColor){
         break;
     }
   }
+  return {
+    x: this.cursor.x,
+    y: this.cursor.y,
+  };
 };
 TM.ScreenManager.prototype.insertTextAt = function(x,y,text,color,backgroundColor){
   if(this.cursor.move(x,y)){
-    this.insertText(text,color,backgroundColor);
+    return this.insertText(text,color,backgroundColor);
   }
 };
 TM.ScreenManager.prototype.deleteText = function(text){
