@@ -87,9 +87,9 @@ TM.ScreenManager.prototype.draw = function(){
   if(this.screen.isDrawRequested === true){
     this.screen.isDrawRequested = false;
 
-    var self = this;
+    var _self = this;
     window.requestAnimationFrame(function(){
-      self.drawAnimationFrame();
+      _self.drawAnimationFrame();
     });
   }
 }
@@ -166,7 +166,8 @@ TM.ScreenManager.prototype.drawAnimationFrame = function(){
       }
 
       //draw cursor
-      if(cursorData.isUpdated && j == cursorData.x && i == cursorData.y){
+      if(cursorData.isUpdated)
+      if(j == cursorData.x && i-this.scrollOffsetY == cursorData.y){
         var cursorWidth = cursorData.width;
         var cursorHeight = this.blockHeight*cursorData.size;
         var cursorX = this.blockWidth*cursorData.x;
@@ -362,6 +363,8 @@ TM.ScreenManager.prototype.scrollUp = function(){
   this.refreshScreen();
 };
 TM.ScreenManager.prototype.clearScreen = function(){
+  this.cursor.move(0,0);
+  this.scrollOffsetY = 0;
   this.fillScreen(' ');
 };
 TM.ScreenManager.prototype.insertText = function(text,color,backgroundColor){
