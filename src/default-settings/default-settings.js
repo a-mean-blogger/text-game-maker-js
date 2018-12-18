@@ -16,8 +16,8 @@ TM.defaultSettings = {
     zoom: 0.5,
   },
   charGroups: {
-    korean: {//ㄱ     -힝
-      chars: '\u3131-\uD79D',
+    korean: {//ㄱ   -힣
+      chars: '\u3131-\uD7A3',
       isFullwidth: true,
       sizeAdj: 1,
       xAdj: 0,
