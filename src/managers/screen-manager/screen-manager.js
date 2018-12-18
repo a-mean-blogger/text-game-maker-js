@@ -22,14 +22,12 @@ TM.ScreenManager = function(customSreenSetting, customCharGroups){
     return;
   }
 
-  this.blockWidth = TM.common.getBlockWidth(this.screenSetting.fontSize);
-  this.blockHeight = TM.common.getBlockHeight(this.screenSetting.fontSize);
+  var blockWidth = TM.common.getBlockWidth(this.screenSetting.fontSize);
+  var blockHeight = TM.common.getBlockHeight(this.screenSetting.fontSize);
 
-  this.canvas.width = this.blockWidth * this.screenSetting.column;
-  this.canvas.height = this.blockHeight * this.screenSetting.row;
-  this.canvas.style.border = this.screenSetting.backgroundColor+' 1px solid';
-  this.canvas.style.borderRadius = '5px';
-  this.canvas.style.backgroundColor = this.screenSetting.backgroundColor;
+  //DOM setting
+  this.canvas.width = blockWidth * this.screenSetting.column;
+  this.canvas.height = blockHeight * this.screenSetting.row;
   this.canvas.style.width = this.canvas.width * this.screenSetting.zoom+'px';
   this.canvas.style.height = this.canvas.height * this.screenSetting.zoom+'px';
   this.canvas.tabIndex = 1; // for input keydown event
@@ -37,6 +35,28 @@ TM.ScreenManager = function(customSreenSetting, customCharGroups){
 
   this.ctx = this.canvas.getContext('2d');
 
+  this.canvasContainer = document.createElement('div');
+  this.canvasContainer.style.position = 'relative';
+  this.canvasContainer.width = this.canvas.width;
+  this.canvasContainer.height = this.canvas.height;
+  this.canvasContainer.style.border = this.screenSetting.backgroundColor+' 1px solid';
+  this.canvasContainer.style.borderRadius = '5px';
+  this.canvasContainer.style.backgroundColor = this.screenSetting.backgroundColor;
+  this.canvasContainer.style.width = this.canvas.width * this.screenSetting.zoom+'px';
+  this.canvasContainer.style.height = this.canvas.height * this.screenSetting.zoom+'px';
+  this.canvasContainer.style.overflow = 'hidden';
+
+  this.canvas.parentNode.insertBefore(this.canvasContainer, this.canvas);
+  this.canvasContainer.append(this.canvas);
+
+  //other properties
+  this.scrollOffsetY = 0;
+  this.isFontLoaded = false;
+  this.FullwidthRegex = TM.common.getFullwidthRegex(this.charGroups);
+  this.blockWidth = blockWidth;
+  this.blockHeight = blockHeight;
+
+  //screen & cursor
   this.screen = {
     data: [],
     isDrawRequested: false,
@@ -44,10 +64,6 @@ TM.ScreenManager = function(customSreenSetting, customCharGroups){
   };
 
   this.cursor = new TM.ScreenManager_Cursor(this);
-
-  this.scrollOffsetY = 0;
-  this.isFontLoaded = false;
-  this.FullwidthRegex = TM.common.getFullwidthRegex(this.charGroups);
 
   TM.ILoopObject.call(this, this.speed);
 };
@@ -95,19 +111,11 @@ TM.ScreenManager.prototype.requestDraw = function(){
   }
 }
 TM.ScreenManager.prototype.drawAnimationFrame = function(){
+  //console.log(Math.floor(Date.now()-1000));
   this.screen.isDrawProcessed = true;
 
   var ctx = this.ctx;
   ctx.textBaseline = 'buttom';
-
-  //remove cursor
-  if(this.cursor.isUpdated && this.cursor.blinkFlag){
-    this.cursor.isUpdated = false;
-
-    var cursorX = this.cursor.fixedX!==undefined?this.cursor.fixedX:this.cursor.x;
-    var cursorY = this.cursor.fixedY!==undefined?this.cursor.fixedY:this.cursor.y;
-    this.screen.data[cursorY+this.scrollOffsetY][cursorX].isNew = true;
-  }
 
   // bgUpdateMap indicates if bg updated or not at the grid in this draw iteration.
   var bgUpdateMap = this.getNewBgUpdateMap();
@@ -161,16 +169,22 @@ TM.ScreenManager.prototype.drawAnimationFrame = function(){
 
       //draw cursor
       if(this.cursor.isUpdated){
-        var cursorX = this.cursor.fixedX!==undefined?this.cursor.fixedX:this.cursor.x;
-        var cursorY = this.cursor.fixedY!==undefined?this.cursor.fixedY:this.cursor.y;
-        if(j == cursorX && i-this.scrollOffsetY == cursorY){
-          var cursorWidth = this.cursor.width;
-          var cursorHeight = this.blockHeight*this.cursor.size;
-          var cursorX = this.blockWidth*cursorX;
-          var cursorY = (this.blockHeight)*(cursorY)+(this.blockHeight-cursorHeight);
-          var cursorColor = this.cursor.color;
-          ctx.fillStyle = cursorColor;
-          ctx.fillRect(cursorX,cursorY,cursorWidth,cursorHeight);
+        if(this.cursor.blinkFlag){ //cursor not showing
+          this.cursor.isUpdated = false;
+        }
+        else {
+          var cursorX = this.cursor.fixedX!==undefined?this.cursor.fixedX:this.cursor.x;
+          var cursorY = this.cursor.fixedY!==undefined?this.cursor.fixedY:this.cursor.y;
+          if(j == cursorX && i-this.scrollOffsetY == cursorY){ //cursor showing
+            this.cursor.isUpdated = false;
+            var cursorWidth = this.cursor.width;
+            var cursorHeight = this.blockHeight*this.cursor.size;
+            var cursorX = this.blockWidth*cursorX;
+            var cursorY = (this.blockHeight)*(cursorY)+(this.blockHeight-cursorHeight);
+            var cursorColor = this.cursor.color;
+            ctx.fillStyle = cursorColor;
+            ctx.fillRect(cursorX,cursorY,cursorWidth,cursorHeight);
+          }
         }
       }
 

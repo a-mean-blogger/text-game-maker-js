@@ -33,61 +33,67 @@ TM.ScreenManager_Cursor.prototype._init = function(){
 };
 TM.ScreenManager_Cursor.prototype._inactivate = function(){
   this.blinkFlag = true;
-  this.isUpdated = true;
 
-  this.refScreenManager.requestDraw();
+  this.requestDraw();
 };
 TM.ScreenManager_Cursor.prototype._calculate = function(){
   this.blinkFlag = !this.blinkFlag;
-  this.isUpdated = true;
 
-  this.refScreenManager.requestDraw();
+  this.requestDraw();
 };
 TM.ScreenManager_Cursor.prototype._draw = function(){};
 
 // TM.ScreenManager_Cursor functions
 TM.ScreenManager_Cursor.prototype.changeColor = function(color){
   this.color = color?color:this.refScreenManager.screenSetting.fontColor;
-  this.refScreenManager.requestDraw();
+
+  this.requestDraw();
 };
 TM.ScreenManager_Cursor.prototype.pin = function(x,y){
-  this.fixedX = x?x:this.x;
-  this.fixedY = y?y:this.y;
+  this.requestDraw();
 
-  this.refScreenManager.screen.data[this.y+this.refScreenManager.scrollOffsetY][this.x].isNew = true;
+  this.fixedX = x!=null?x:this.x;
+  this.fixedY = y!=null?y:this.y;
 
-  this.refScreenManager.requestDraw();
+  this.requestDraw();
 }
 TM.ScreenManager_Cursor.prototype.unpin = function(){
-  this.refScreenManager.screen.data[this.fixedY+this.refScreenManager.scrollOffsetY][this.fixedX].isNew = true;
+  this.x = this.fixedX!=undefined?this.fixedX:this.x;
+  this.y = this.fixedY!=undefined?this.fixedY:this.y;
 
   this.fixedX = undefined;
   this.fixedY = undefined;
 
-  this.refScreenManager.requestDraw();
+  this.requestDraw();
 }
 TM.ScreenManager_Cursor.prototype.move = function(x,y){
   var isMoved = false;
   if(this.isActive && x>=0 && x<= this.xMax && y>=0 && y<= this.yMax){
-    this.refScreenManager.screen.data[this.y+this.refScreenManager.scrollOffsetY][this.x].isNew = true;
-
     isMoved = true;
     this.x = x;
     this.y = y;
 
-    this.refScreenManager.requestDraw();
+    this.requestDraw();
   }
   return isMoved;
 };
+TM.ScreenManager_Cursor.prototype.requestDraw = function(){
+  var x = this.fixedX!=undefined?this.fixedX:this.x;
+  var y = this.fixedY!=undefined?this.fixedY:this.y;
+
+  this.isUpdated = true;
+  this.refScreenManager.screen.data[y+this.refScreenManager.scrollOffsetY][x].isNew = true;
+  this.refScreenManager.requestDraw();
+}
 TM.ScreenManager_Cursor.prototype.hide = function(){
   this.isHidden = true;
   this.blinkFlag = true;
   this.interval.inactivate();
-  this.isUpdated = true;
-  this.refScreenManager.screen.data[this.y+this.refScreenManager.scrollOffsetY][this.x].isNew = true;
 
-  this.refScreenManager.requestDraw();
+  this.requestDraw();
 };
 TM.ScreenManager_Cursor.prototype.show = function(){
   this.init();
+
+  this.requestDraw();
 };
