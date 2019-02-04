@@ -47,7 +47,7 @@ TM.ScreenManager = function(customSreenSetting, customCharGroups){
   this.canvasContainer.style.overflow = 'hidden';
 
   this.canvas.parentNode.insertBefore(this.canvasContainer, this.canvas);
-  this.canvasContainer.append(this.canvas);
+  this.canvasContainer.appendChild(this.canvas);
 
   //other properties
   this.scrollOffsetY = 0;
@@ -124,7 +124,6 @@ TM.ScreenManager.prototype.drawAnimationFrame = function(){
     for(var j=0; j<this.screenSetting.column; j++){
 
       if(this.screen.data[i][j].isNew === true){
-
         //draw backgroundColor
         if(!bgUpdateMap[i][j]){
           var bgX = this.blockWidth*j;
@@ -295,9 +294,9 @@ TM.ScreenManager.prototype.insertChar = function(char,color,backgroundColor){
     if(this.screen.data[dataY][dataX].char != char
       || this.screen.data[dataY][dataX].color != (color?color:this.screenSetting.fontColor)
       || this.screen.data[dataY][dataX].backgroundColor != (backgroundColor?backgroundColor:this.screenSetting.backgroundColor)
-      || (this.screen.data[dataY][dataX].char[0] == '$' && this.screen.data[dataY][dataX-1].isNew)
+      || (this.screen.data[dataY][dataX].char[0] == '$' && dataX-1>0 && this.screen.data[dataY][dataX-1].isNew)
     ){
-      var regex = this.FullwidthRegex;
+      var regex = new RegExp(this.FullwidthRegex);
       var fullwidth = regex?regex.test(char):false;
 
       this.screen.data[dataY][dataX].update(char,fullwidth,color,backgroundColor);
@@ -311,7 +310,10 @@ TM.ScreenManager.prototype.insertChar = function(char,color,backgroundColor){
     }
 
     //move cursor
-    if(screenX+1>=this.screenSetting.column && screenY+1<this.screenSetting.row){
+    if(this.screen.data[dataY][dataX].char[0] == '$' && dataX==0){ //when fullwidth character cut in half at the end of screen
+
+    }
+    else if(screenX+1>=this.screenSetting.column && screenY+1<this.screenSetting.row){
       this.cursor.move(0,screenY+1);
     }
     else if(screenX+1>=this.screenSetting.column && screenY+1>=this.screenSetting.row){
@@ -399,7 +401,7 @@ TM.ScreenManager.prototype.insertText = function(text,color,backgroundColor){
         this.cursor.move(0,this.cursor.y);
         break;
       default:
-        var fullwidth = regex?regex.test(text[i]):false;
+        var fullwidth = regex?(new RegExp(this.FullwidthRegex)).test(text[i]):false;
         this.insertChar(text[i],color,backgroundColor);
         if(fullwidth){
           i++;
@@ -419,7 +421,7 @@ TM.ScreenManager.prototype.insertTextAt = function(x,y,text,color,backgroundColo
   }
 };
 TM.ScreenManager.prototype.deleteText = function(text){
-  var regex = this.FullwidthRegex;
+  var regex = new RegExp(this.FullwidthRegex);
   text = text.toString().replace(regex,'$1 ');
   this.insertText(text.replace(/./g,' '));
 };

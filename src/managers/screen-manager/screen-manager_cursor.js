@@ -70,6 +70,9 @@ TM.ScreenManager_Cursor.prototype.move = function(x,y){
   var isMoved = false;
   if(this.isActive && x>=0 && x<= this.xMax && y>=0 && y<= this.yMax){
     isMoved = true;
+
+    this.requestDraw();
+
     this.x = x;
     this.y = y;
 
@@ -96,4 +99,13 @@ TM.ScreenManager_Cursor.prototype.show = function(){
   this.init();
 
   this.requestDraw();
+};
+TM.ScreenManager_Cursor.prototype.copy = function(){
+  return TM.common.mergeObjects(this);
+};
+TM.ScreenManager_Cursor.prototype.paste = function(cursor){
+  for(var key in TMS.cursor){
+    if(TMS.cursor[key] != undefined && typeof TMS.cursor[key] !='function') TMS.cursor[key] = cursor[key];
+  }
+  cursor.isHidden? this.hide():this.show();
 };
