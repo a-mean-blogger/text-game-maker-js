@@ -30,6 +30,10 @@ gulp.task('default', function() {
   gulp.src(['./readme.txt'])
   .pipe(gulp.dest(`./dist/text-game-maker-${version}.min.js`))
   .pipe(gulp.dest('./dist/text-game-maker-js-starter-program'));
+
+  gulp.src(['./resources/**/*'])
+  .pipe(gulp.dest(`./dist/text-game-maker-${version}.min.js/resources`))
+  .pipe(gulp.dest('./dist/text-game-maker-js-starter-program/resources'));
 });
 
 var headerText = `/*

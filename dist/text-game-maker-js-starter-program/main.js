@@ -6,27 +6,28 @@ var screenSetting = {
   // row: 20,
   // backgroundColor: '#151617',
   // webFontJsPath: 'https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js',
-  // fontFaceObserverJsPath:'https://cdnjs.cloudflare.com/ajax/libs/fontfaceobserver/2.0.13/fontfaceobserver.js',
+  // fontFaceObserverJsPath: 'https://cdnjs.cloudflare.com/ajax/libs/fontfaceobserver/2.0.13/fontfaceobserver.js',
   // fontColor: '#F5F7FA',
-  // fontFamily: 'monospace',
-  // fontSource: null,
+  // fontFamily: 'Nanum Gothic Coding',
+  // fontSource: 'https://cdn.jsdelivr.net/font-nanum/1.0/nanumgothiccoding/nanumgothiccoding.css',
   // fontSize: 30,
   // zoom: 0.5,
-
-  /* Try This */
-  // fontFamily: 'Nanum Gothic Coding',
-  // fontSource: 'https://fonts.googleapis.com/css?family=Nanum+Gothic+Coding',
 
   column: 70,
   row: 9,
 };
 
 var charGroups = {
-  /* There is no default value for this.            */
-  /* Try This with 'Nanum Gothic Coding' font,      */
-  /* then insert special characters like: ■ □ ★ ☆ △ ▷ ▽ ◁ */
+  /* Default Values */
+  // korean: {
+  //   chars: '\u3131-\uD7A3', //ㄱ   -힣
+  //   isFullwidth: true,
+  //   sizeAdj: 1,
+  //   xAdj: 0,
+  //   yAdj: 0,
+  // },
   // fullwidth: {
-  //   chars: '\u2500-\u2BFF\u2022\u2008',
+  //   chars: '\u2500-\u2BFF\u2022\u2008', // ■□★☆△▷▽◁┍┑┕┙│━┏┓┗┛━┃...
   //   isFullwidth: true,
   //   sizeAdj: 1.2,
   //   xAdj: -0.05,
@@ -35,8 +36,10 @@ var charGroups = {
 };
 
 var debugSetting = {
+  /* Default Values */
   // devMode: false,
   // outputDomId: 'tm-debug-output',
+
   devMode: true,
 };
 

@@ -24,4 +24,4 @@ English: [http://www.a-mean-blog.com/en/blog/Text-Game-Maker-JS](http://www.a-me
 
 ## Copyright
 
-Text Game Maker JS Copyright (c) 2017 a.mean.blogger@gmail.com
+Text Game Maker JS Copyright (c) 2019 a.mean.blogger@gmail.com
