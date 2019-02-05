@@ -24,6 +24,7 @@ TM.defaultSettings = {
       yAdj: 0,
     },
     fullwidth: {// ■□★☆△▷▽◁┍┑┕┙│━┏┓┗┛━┃...
+      targetFonts: ['Nanum Gothic Coding'],
       chars: '\u2008\u2022\u2190-\u21f0\u2500-\u2BFF',
       isFullwidth: true,
       sizeAdj: 1.2,
