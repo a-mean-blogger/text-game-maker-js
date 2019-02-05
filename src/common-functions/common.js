@@ -32,17 +32,20 @@ TM.common.isNumber = function(num){
   if(num === 0|| (num && num.constructor == Number)) return true;
   else return false;
 };
-TM.common.getCharGroup = function(charGroups, char){
+TM.common.getCharGroup = function(charGroups, charData){
   for(var group in charGroups){
     var charset = charGroups[group];
+    if(charset.targetFonts && charset.targetFonts.indexOf(charData.font) == -1) continue;
+
     var regex = new RegExp('^['+charset.chars+']$');
-    if(regex.test(char)) return charset;
+    if(regex.test(charData.char)) return charset;
   }
 };
-TM.common.getFullwidthRegex = function(charGroups){
+TM.common.getFullwidthRegex = function(charGroups, font){
   var string = '';
   for(var group in charGroups){
     var charset = charGroups[group];
+    if(charset.targetFonts && charset.targetFonts.indexOf(font) == -1) continue;
     if(charset&&charset.isFullwidth) string += charset.chars;
   }
   if(string) return new RegExp('(['+string+'])','g');

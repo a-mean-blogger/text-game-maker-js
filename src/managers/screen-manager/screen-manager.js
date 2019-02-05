@@ -52,7 +52,6 @@ TM.ScreenManager = function(customSreenSetting, customCharGroups){
   //other properties
   this.scrollOffsetY = 0;
   this.isFontLoaded = false;
-  this.FullwidthRegex = TM.common.getFullwidthRegex(this.charGroups);
   this.blockWidth = blockWidth;
   this.blockHeight = blockHeight;
 
@@ -138,7 +137,7 @@ TM.ScreenManager.prototype.drawAnimationFrame = function(){
         if(this.screen.data[i][j].char && this.screen.data[i][j].char[0] != '$'){
           var chX = this.blockWidth*j;
           var chY = this.blockHeight*(i-this.scrollOffsetY)+this.blockHeight*0.8; // y adjustment
-          var charset = TM.common.getCharGroup(this.charGroups, this.screen.data[i][j].char);
+          var charset = TM.common.getCharGroup(this.charGroups, this.screen.data[i][j]);
           if(charset){
             ctx.font = this.screenSetting.fontSize*charset.sizeAdj+'px '+this.screen.data[i][j].font;
             chX = chX+this.blockWidth*charset.xAdj;
@@ -283,7 +282,7 @@ TM.ScreenManager.prototype.isInScreen = function(x,y){
   }
   return isInScreen;
 };
-TM.ScreenManager.prototype.insertChar = function(char,color,backgroundColor){
+TM.ScreenManager.prototype.insertChar = function(char,color,backgroundColor,font,isFullwidth){
   var screenX = this.cursor.x;
   var screenY = this.cursor.y;
   var dataX = this.cursor.x;
@@ -294,16 +293,14 @@ TM.ScreenManager.prototype.insertChar = function(char,color,backgroundColor){
     if(this.screen.data[dataY][dataX].char != char
       || this.screen.data[dataY][dataX].color != (color?color:this.screenSetting.fontColor)
       || this.screen.data[dataY][dataX].backgroundColor != (backgroundColor?backgroundColor:this.screenSetting.backgroundColor)
+      || this.screen.data[dataY][dataX].font != (font?font:this.screenSetting.fontFamily)
       || (this.screen.data[dataY][dataX].char[0] == '$' && dataX-1>0 && this.screen.data[dataY][dataX-1].isNew)
     ){
-      var regex = new RegExp(this.FullwidthRegex);
-      var fullwidth = regex?regex.test(char):false;
-
-      this.screen.data[dataY][dataX].update(char,fullwidth,color,backgroundColor);
+      this.screen.data[dataY][dataX].update(char,color,backgroundColor,font,isFullwidth);
 
       // to clean background outliner
       if(this.isInScreen(screenX-1,screenY)) this.screen.data[dataY][dataX-1].draw = true;
-      if(this.isInScreen(screenX+(fullwidth?2:1),screenY)) this.screen.data[dataY][dataX+(fullwidth?2:1)].draw = true;
+      if(this.isInScreen(screenX+(isFullwidth?2:1),screenY)) this.screen.data[dataY][dataX+(isFullwidth?2:1)].draw = true;
 
       //draw screen
       this.requestDraw();
@@ -380,9 +377,10 @@ TM.ScreenManager.prototype.clearScreen = function(){
   this.scrollOffsetY = 0;
   this.fillScreen(' ');
 };
-TM.ScreenManager.prototype.insertText = function(text,color,backgroundColor){
-  var regex = this.FullwidthRegex;
-  if(regex) text = text.toString().replace(regex,'$1 ');
+TM.ScreenManager.prototype.insertText = function(text,color,backgroundColor,font){
+  font = font?font:this.screenSetting.fontFamily;
+  var fullwidthRegex = TM.common.getFullwidthRegex(this.charGroups,font);
+  if(fullwidthRegex) text = text.toString().replace(fullwidthRegex,'$1 ');
 
   var sX = this.cursor.x; // store the starting x position
 
@@ -401,11 +399,11 @@ TM.ScreenManager.prototype.insertText = function(text,color,backgroundColor){
         this.cursor.move(0,this.cursor.y);
         break;
       default:
-        var fullwidth = regex?(new RegExp(this.FullwidthRegex)).test(text[i]):false;
-        this.insertChar(text[i],color,backgroundColor);
-        if(fullwidth){
+        var isFullwidth = fullwidthRegex?(new RegExp(fullwidthRegex)).test(text[i]):false;
+        this.insertChar(text[i],color,backgroundColor,font,isFullwidth);
+        if(isFullwidth){
           i++;
-          this.insertChar('$fullwidthFiller',color,backgroundColor);
+          this.insertChar('$fullwidthFiller',color,backgroundColor,font);
         }
         break;
     }
@@ -415,15 +413,16 @@ TM.ScreenManager.prototype.insertText = function(text,color,backgroundColor){
     y: this.cursor.y,
   };
 };
-TM.ScreenManager.prototype.insertTextAt = function(x,y,text,color,backgroundColor){
+TM.ScreenManager.prototype.insertTextAt = function(x,y,text,color,backgroundColor,font){
   if(this.cursor.move(x,y)){
-    return this.insertText(text,color,backgroundColor);
+    return this.insertText(text,color,backgroundColor,font);
   }
 };
-TM.ScreenManager.prototype.deleteText = function(text){
-  var regex = new RegExp(this.FullwidthRegex);
-  text = text.toString().replace(regex,'$1 ');
-  this.insertText(text.replace(/./g,' '));
+TM.ScreenManager.prototype.deleteText = function(text,font){
+  font = font?font:this.screenSetting.fontFamily;
+  var fullwidthRegex = TM.common.getFullwidthRegex(this.charGroups,font);
+  text = text.toString().replace(fullwidthRegex,'$1 ');
+  this.insertText(text.replace(/./g,' '),null,null,font);
 };
 TM.ScreenManager.prototype.deleteTextAt = function(x,y,text){
   if(this.cursor.move(x,y)){

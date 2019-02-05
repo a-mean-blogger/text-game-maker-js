@@ -39,7 +39,6 @@ TM.InputManager_Keyboard = function(refInputManager){
       if(e.keyCode == 13){ //'Enter' key
         TMS.cursor.paste(_self.textBox.cursorSnap);
         _self.truncateText();
-
         TMS.cursor.unpin();
 
         window.clearInterval(_self.textBox.interval);
