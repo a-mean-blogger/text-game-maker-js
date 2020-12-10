@@ -4,9 +4,14 @@ var gulp = require('gulp'),
     header = require('gulp-header');
 
 var version = '1.0.2';
-var year = '2019';
+var year = '2020';
+var headerText = `/*
+ * Copyright ${year} a.mean.blogger@gmail.com
+ * GitHub: https://github.com/a-mean-blogger/text-game-maker-js
+ * license: MIT
+ */`;
 
-gulp.task('default', function() {
+function defaultTask(cb) {
   gulp.src([
     './src/default-settings/default-settings.js',
     './src/common-functions/common.js',
@@ -34,11 +39,8 @@ gulp.task('default', function() {
   gulp.src(['./resources/**/*'])
   .pipe(gulp.dest(`./dist/text-game-maker-${version}.min.js/resources`))
   .pipe(gulp.dest('./dist/text-game-maker-js-starter-program/resources'));
-});
 
-var headerText = `/*
- * Copyright ${year} a.mean.blogger@gmail.com
- * GitHub: https://github.com/a-mean-blogger/text-game-maker-js
- * license: MIT
- */
-`;
+  cb();
+}
+
+exports.default = defaultTask;

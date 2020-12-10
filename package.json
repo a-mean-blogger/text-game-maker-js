@@ -4,7 +4,7 @@
   "description": "create a console-like HTML5 canvas on browser that can be used to make text games",
   "dependencies": {},
   "devDependencies": {
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.2",
     "gulp-concat": "^2.6.1",
     "gulp-header": "^1.8.9",
     "gulp-uglify": "^3.0.0"
